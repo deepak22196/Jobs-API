@@ -2,6 +2,8 @@ const express = require("express");
 
 const jobsRouter = require("./routes/jobsRouter");
 const authRouter = require("./routes/authRouter");
+const errorHandler = require("./middlewares/errorandler");
+const authMiddleware = require("./middlewares/authMiddleware");
 
 const connectDB = require("./db/connect");
 
@@ -15,9 +17,10 @@ const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
 
-app.use("/api/v1/jobs", jobsRouter);
+app.use("/api/v1/jobs", authMiddleware, jobsRouter);
 app.use("/api/v1/auth", authRouter);
 
+app.use(errorHandler);
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
