@@ -41,8 +41,56 @@ const getJob = async (req, res) => {
   }
 };
 
-const updateJob = async (req, res) => {};
+const updateJob = async (req, res) => {
+  try {
+    const {
+      body: { company, position },
+      user: { userId },
+      params: { id: jobId },
+    } = req;
 
-const deleteJob = async (req, res) => {};
+    // if (!company || !position) {
+    //   res
+    //     .status(StatusCodes.BAD_REQUEST)
+    //     .json({ message: "company or position missing" });
+    //   return;
+    // }
+
+    const job = await Job.findOneAndUpdate(
+      { _id: jobId, createdBy: userId },
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!job) {
+      res.status(404).json({ message: "no job found with the given id" });
+      return;
+    }
+    res.status(StatusCodes.OK).json({ message: "success", job });
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+};
+
+const deleteJob = async (req, res) => {
+  try {
+    const {
+      body: { company, position },
+      user: { userId },
+      params: { id: jobId },
+    } = req;
+
+    const job = await Job.findOneAndDelete({ _id: jobId, createdBy: userId });
+    if (!job) {
+      res.status(404).json({ message: "no job found with the given id" });
+      return;
+    }
+    res.status(StatusCodes.OK).json({ message: "success", job });
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+};
 
 module.exports = { getAllJobs, createJob, getJob, updateJob, deleteJob };
